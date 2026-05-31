@@ -1,0 +1,7 @@
+fsh-generated/
+output/
+template/
+input-cache/
+node_modules/
+.DS_Store
+*.log

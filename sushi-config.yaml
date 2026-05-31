@@ -1,0 +1,42 @@
+id: moyae.fhir.ophthalmology
+canonical: https://fhir.moyae.com
+name: MoyaeFhirOphthalmology
+title: "Moyae Ophthalmology FHIR Implementation Guide"
+description: "Implementation Guide for ophthalmology FHIR resources published by Moyae, Inc. — covers Visual Acuity, Intraocular Pressure, and Refraction observations in alignment with the ZEISS Eyecare Concepts IG and TOPCON's numeric ocular device data exchange pattern."
+status: draft
+version: 0.1.0
+fhirVersion: 4.0.1
+copyrightYear: 2026+
+releaseLabel: ci-build
+license: CC0-1.0
+
+publisher:
+  name: Moyae, Inc.
+  url: https://moyae.com
+  email: partnerships@moyae.com
+
+contact:
+  - name: Moyae, Inc.
+    telecom:
+      - system: url
+        value: https://moyae.com
+      - system: email
+        value: partnerships@moyae.com
+
+dependencies:
+  hl7.fhir.us.core: 6.1.0
+
+parameters:
+  show-inherited-invariants: false
+  apply-publisher: true
+  apply-version: true
+
+pages:
+  index.md:
+    title: Home
+
+menu:
+  Home: index.html
+  Profiles: artifacts.html
+  Examples: artifacts.html#examples
+  Relationships: relationships.html
