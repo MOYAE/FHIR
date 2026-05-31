@@ -34,6 +34,8 @@ parameters:
 pages:
   index.md:
     title: Home
+  relationships.md:
+    title: Relationships and caveats
 
 menu:
   Home: index.html
