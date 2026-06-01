@@ -11,8 +11,8 @@ Description: "Status promoted from draft to active by the prescribing doctor's s
 * status            = #active
 * created           = "2026-05-31T14:30:00-05:00"
 * dateWritten       = "2026-05-31T14:45:00-05:00"
-* patient.reference   = "Patient/example"
-* encounter.reference = "Encounter/example"
+* patient.reference   = "Patient/example-patient"
+* encounter.reference = "Encounter/example-encounter"
 * prescriber.reference = "Practitioner/example-doctor"
 * prescriber.display   = "Dr. Example"
 

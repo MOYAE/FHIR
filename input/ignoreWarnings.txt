@@ -1,0 +1,6 @@
+# Suppressed validation messages for the Moyae Ophthalmology IG.
+# One message (substring) per line; lines starting with '#' are comments.
+# See https://confluence.hl7.org/display/FHIR/Suppressing+Errors+and+Warnings
+#
+# (No messages suppressed yet — the dependency "behind latest" warnings for
+#  us.core 6.1.0 are intentional and left visible.)

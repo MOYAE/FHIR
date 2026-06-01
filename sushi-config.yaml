@@ -30,6 +30,9 @@ parameters:
   show-inherited-invariants: false
   apply-publisher: true
   apply-version: true
+  # The MoyaeIsCcCS CodeSystem is deliberately published at https://moyae.com/is-cc
+  # (where the Moyae API emits it) rather than under the IG canonical, so whitelist it.
+  special-url: https://moyae.com/is-cc
 
 pages:
   index.md:
@@ -39,6 +42,5 @@ pages:
 
 menu:
   Home: index.html
-  Profiles: artifacts.html
-  Examples: artifacts.html#examples
+  Artifacts: artifacts.html
   Relationships: relationships.html

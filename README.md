@@ -54,8 +54,6 @@ Build artifacts land in `output/` and are gitignored. The published site is serv
 
 ## Related work
 
-- [ZEISS Eyecare Concepts IG](https://zeiss.github.io/eyecare-concepts/)
-- TOPCON FHIR Exchange for Numeric Ocular Device Data (working draft)
 - [HL7 FHIR Eye Care IG](https://build.fhir.org/ig/HL7/fhir-eye-care-ig/)
 
 ## License

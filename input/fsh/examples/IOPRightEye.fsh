@@ -1,12 +1,13 @@
 // Example: IOP right eye, 14 mmHg, Goldmann applanation tonometer.
 // Mirrors the v0.1.x target shape emitted by packages/api/services/fhirObservations/iop.ts
-// (right-eye half of the per-eye pair): laterality on bodySite, pressure as valueQuantity mm[Hg].
+// (right-eye half of the per-eye pair): laterality on bodySite, pressure as valueQuantity mm[Hg],
+// tonometer on Observation.method.
 
 Instance:    Example-MoyaeIOP-RightEye
 InstanceOf:  MoyaeIntraocularPressure
 Usage:       #example
 Title:       "Example: Moyae IOP, right eye"
-Description: "Right eye, 14 mmHg, Goldmann applanation tonometer, in the v0.1.x target shape (laterality on bodySite, value as valueQuantity)."
+Description: "Right eye, 14 mmHg, Goldmann applanation tonometer, in the v0.1.x target shape (laterality on bodySite, value as valueQuantity, method on Observation.method)."
 
 * identifier.value = "intraocular-pressure"
 * status = #final
@@ -16,8 +17,8 @@ Description: "Right eye, 14 mmHg, Goldmann applanation tonometer, in the v0.1.x 
 * code.coding[+].system  = $SCT
 * code.coding[=].code    = #41633001
 * code.coding[=].display = "Intraocular pressure (observable entity)"
-* subject.reference   = "Patient/example"
-* encounter.reference = "Encounter/example"
+* subject.reference   = "Patient/example-patient"
+* encounter.reference = "Encounter/example-encounter"
 * effectiveDateTime   = "2026-05-31T14:30:00-05:00"
 
 * bodySite.coding[+].system  = $SCT
@@ -29,7 +30,6 @@ Description: "Right eye, 14 mmHg, Goldmann applanation tonometer, in the v0.1.x 
 * valueQuantity.code   = #mm[Hg]
 * valueQuantity.unit   = "mmHg"
 
-* component[+].code.coding[+].system  = $SCT
-* component[=].code.coding[=].code    = #391939000
-* component[=].code.coding[=].display = "Goldmann applanation tonometer"
-* component[=].valueString = "Goldmann applanation tonometer"
+* method.coding[+].system  = $SCT
+* method.coding[=].code    = #391939000
+* method.coding[=].display = "Goldmann applanation tonometer"

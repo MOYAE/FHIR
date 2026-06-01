@@ -47,8 +47,8 @@ See the [Relationships](relationships.html) page for the legacy (pre-migration) 
 * performer 0..*
 
 // Laterality: one Observation per eye, carried on bodySite (replaces the legacy laterality
-// extension + redundant eyeCode component). NOTE: exact SNOMED bodySite codes are still being
-// confirmed against ZEISS's body-site-eye value set (roadmap "items to confirm").
+// extension + redundant eyeCode component). NOTE: the exact SNOMED bodySite code set is still
+// pending final confirmation (roadmap "items to confirm").
 * bodySite 1..1
 * bodySite.coding.system = $SCT (exactly)
 * bodySite.coding.code from MoyaeBodySiteEyeVS (required)
@@ -59,18 +59,18 @@ See the [Relationships](relationships.html) page for the legacy (pre-migration) 
 * valueQuantity.system = $UCUM (exactly)
 * valueQuantity.code   = #mm[Hg] (exactly)
 
-// Optional supporting detail retained from the source emission. The redundant eyeCode component
-// is intentionally gone — laterality now lives on bodySite.
+// The measurement device / technique (e.g. Goldmann applanation tonometer) on method,
+// replacing the legacy free-text instrument component.
+* method 0..1
+* method.coding.system = $SCT (exactly)
+
+// Optional supporting detail. The redundant eyeCode component is intentionally gone
+// (laterality now lives on bodySite); only the correction flag remains as a component.
 * component 0..*
 * component ^slicing.discriminator.type = #pattern
 * component ^slicing.discriminator.path = "code"
 * component ^slicing.rules = #open
-* component contains
-    instrument     0..1 and
-    correction     0..1
-
-* component[instrument].code.coding.system  = $SCT (exactly)
-* component[instrument].value[x] only string
+* component contains correction 0..1
 
 * component[correction].code.coding.system  = $SCT (exactly)
 * component[correction].code.coding.code    = #410616005 (exactly)

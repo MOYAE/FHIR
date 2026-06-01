@@ -19,11 +19,11 @@ Description: "Distance visual acuity corrected (cc), OD 20/20, OS 20/25, vertex 
 * code.coding[=].code    = #397536007
 * code.coding[=].display = "Corrected visual acuity (observable entity)"
 
-* subject.reference     = "Patient/example"
-* encounter.reference   = "Encounter/example"
+* subject.reference     = "Patient/example-patient"
+* encounter.reference   = "Encounter/example-encounter"
 * effectiveDateTime     = "2026-05-31T14:30:00-05:00"
 
-* focus[+].reference    = "VisionPrescription/example-draft"
+* focus[+].reference    = "VisionPrescription/Example-MoyaeVisionPrescription-Draft"
 
 // `with correction` boolean flag — Moyae-defined URI, NOT a SNOMED code.
 * component[+].code.coding[+].system  = $MOYAE-CC-CS

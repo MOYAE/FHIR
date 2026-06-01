@@ -17,8 +17,8 @@ Description: "SNOMED eye codes used on Observation.component when redundantly ca
 * $SCT#18944008 "Right Eye"
 
 // v0.1.x target: laterality moves to Observation.bodySite using these eye-structure codes,
-// replacing the legacy laterality extension + MoyaeEyeCodeVS component above. Exact codes
-// are still pending alignment with ZEISS's body-site-eye value set (roadmap "items to confirm").
+// replacing the legacy laterality extension + MoyaeEyeCodeVS component above. The exact code
+// set is still pending final confirmation (roadmap "items to confirm").
 ValueSet:   MoyaeBodySiteEyeVS
 Id:         moyae-body-site-eye-vs
 Title:      "Moyae Eye Laterality (bodySite)"

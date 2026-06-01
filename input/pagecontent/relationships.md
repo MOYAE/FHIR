@@ -21,7 +21,7 @@ The migration plan:
 
 **Note on R5.** The Observation resource in FHIR R5 keeps `focus` with the same definition, but the broader R5 design pattern leans on extensions for relationships that don't fit the canonical FHIR R4 reference slots. Moving to an extension aligns Moyae with where the standard is heading.
 
-**Comparison to peer IGs.** The HL7 Eye Care IG and ZEISS Eyecare Concepts IG treat refractive measurements as their own Observation profiles (subjective / objective / habitual lens prescription as an Observation profile). Moyae's pattern of using VisionPrescription as the measurement carrier is a Moyae-specific design choice that preserves the measurement → signed-prescription audit trail on a single resource. The trade-off is the unusual `focus` reference (to be replaced) and the dual-status overload on VisionPrescription.
+**Comparison to peer IGs.** Some peer IGs (e.g. the HL7 Eye Care IG) treat refractive measurements as their own Observation profiles, separate from any prescription resource. Moyae's pattern of using VisionPrescription as the measurement carrier is a Moyae-specific design choice that preserves the measurement → signed-prescription audit trail on a single resource. The trade-off is the unusual `focus` reference (to be replaced) and the dual-status overload on VisionPrescription.
 
 ### Two SNOMED system URIs — FIXED in v0.1.0
 {: #snomed-uris }
@@ -55,7 +55,7 @@ This profile and the IOP example are now consistent with the canonical URI.
 Moyae uses `VisionPrescription.status = "draft"` as the in-exam **measurement** carrier and `status = "active"` as the signed **prescription**. The same resource type covers both lifecycle states.
 
 * **Pro:** A single resource preserves the measurement → prescription audit trail. The prescriber signature transitions status from draft to active. Partners querying for "the refraction taken at this encounter" don't need to look at two different resource types.
-* **Con:** ZEISS Eyecare Concepts IG argues VisionPrescription is fundamentally a Request resource (for prescribing) and that measurements should be Observations (their `HabitualLensPrescription` Observation profile). Tools that expect VisionPrescription to mean "signed Rx" can misinterpret draft instances.
+* **Con:** One school of thought holds that VisionPrescription is fundamentally a prescribing (request) resource and that measurements belong on Observations. Tools that expect VisionPrescription to mean "signed Rx" can misinterpret draft instances.
 
 Moyae's pattern stays in v0.1.0. The narrative documents it so partners can plan accordingly. Both patterns are valid; this is a design choice, not a bug.
 
@@ -76,6 +76,6 @@ The Moyae API includes a translation layer between the canonical shapes document
 
 This means partners do not need to consume the canonical shapes documented in this IG. The canonical shapes are the **reference point**; the translation layer adapts them to whatever a given partner needs.
 
-### Compatibility with HL7 Eye Care and ZEISS Eyecare Concepts IGs
+### Alignment with industry conventions
 
-Moyae aligns with the per-Observation profile structure published by the ZEISS Eyecare Concepts IG (separate profiles for refraction sub-types, body-site-based laterality, valueQuantity with UCUM). Reaching parity with that structure is the goal of v0.1.x. See the [Moyae IG ↔ ZEISS Eyecare Concepts mapping](https://fhir.moyae.com/ig/v0.1/mapping-zeiss.html) (published with v0.1.1).
+Moyae is moving toward the per-Observation profile structure common in modern ophthalmology FHIR work: separate profiles for refraction sub-types, `bodySite`-based laterality, and `valueQuantity` with UCUM. Reaching parity with that structure is the goal of v0.1.x.

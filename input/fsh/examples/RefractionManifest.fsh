@@ -17,11 +17,11 @@ Description: "A subjective / manifest refraction Observation referencing the dra
 * code.coding[=].code    = #251794006
 * code.coding[=].display = "Refraction"
 
-* subject.reference   = "Patient/example"
-* encounter.reference = "Encounter/example"
+* subject.reference   = "Patient/example-patient"
+* encounter.reference = "Encounter/example-encounter"
 * effectiveDateTime   = "2026-05-31T14:30:00-05:00"
 
-* focus[+].reference  = "VisionPrescription/example-draft"
+* focus[+].reference  = "VisionPrescription/Example-MoyaeVisionPrescription-Draft"
 
 // with-correction flag (false during a manifest refraction)
 * component[+].code.coding[+].system  = $MOYAE-CC-CS

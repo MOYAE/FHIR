@@ -13,7 +13,7 @@
 
 ### Important characteristics of the current implementation
 
-These are the items partners and validators most often ask about. Each is documented honestly here, and where Moyae's current emission deviates from "ideal FHIR" or from peer IGs (HL7 Eye Care, ZEISS Eyecare Concepts), the [Relationships and caveats](relationships.html) page calls out the rationale and the v0.1.x migration plan.
+These are the items partners and validators most often ask about. Each is documented honestly here, and where Moyae's current emission deviates from "ideal FHIR" or from peer IGs (e.g. the HL7 Eye Care IG), the [Relationships and caveats](relationships.html) page calls out the rationale and the v0.1.x migration plan.
 
 * **One Observation per eye for IOP.** Each IOP exam produces two Observation resources. Eye is identified via a `laterality` extension and (redundantly) via a `component` entry.
 * **Visual acuity and refraction share an Observation shape.** They are distinguished by `Observation.code` (corrected vs. uncorrected vs. refraction vs. retina VA) and by component method flags.

@@ -4,8 +4,9 @@
 //   - status = "draft"  : in-progress measurement (refraction-in-progress, lensometer reading).
 //                          Referenced from a MoyaeVisualAcuity or MoyaeRefraction Observation.focus.
 //   - status = "active" : the signed, finalized prescription handed to the patient or optical lab.
-// This is a deliberate alternative to ZEISS Eyecare Concepts IG's HabitualLensPrescription Observation
-// pattern. The narrative explains the trade-offs.
+// This is a deliberate alternative to the pattern some peer IGs use, where the measurement is an
+// Observation and VisionPrescription is reserved for the signed prescription. The narrative explains
+// the trade-offs.
 
 Profile:        MoyaeVisionPrescription
 Parent:         VisionPrescription

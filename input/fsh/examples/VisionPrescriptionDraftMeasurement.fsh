@@ -12,8 +12,8 @@ Description: "A draft VisionPrescription carrying the in-progress refractive mea
 * status            = #draft
 * created           = "2026-05-31T14:30:00-05:00"
 * dateWritten       = "2026-05-31T14:30:00-05:00"
-* patient.reference   = "Patient/example"
-* encounter.reference = "Encounter/example"
+* patient.reference   = "Patient/example-patient"
+* encounter.reference = "Encounter/example-encounter"
 * prescriber.reference = "Practitioner/example-doctor"
 * prescriber.display   = "Dr. Example"
 
@@ -21,7 +21,7 @@ Description: "A draft VisionPrescription carrying the in-progress refractive mea
 * lensSpecification[+].eye      = #right
 * lensSpecification[=].product.coding.system = $VP-PRODUCT
 * lensSpecification[=].product.coding.code   = #lens
-* lensSpecification[=].product.coding.display = "glasses"
+* lensSpecification[=].product.coding.display = "Lens"
 * lensSpecification[=].sphere   = -2.25
 * lensSpecification[=].cylinder = -0.50
 * lensSpecification[=].axis     = 90
@@ -35,7 +35,7 @@ Description: "A draft VisionPrescription carrying the in-progress refractive mea
 * lensSpecification[+].eye      = #left
 * lensSpecification[=].product.coding.system = $VP-PRODUCT
 * lensSpecification[=].product.coding.code   = #lens
-* lensSpecification[=].product.coding.display = "glasses"
+* lensSpecification[=].product.coding.display = "Lens"
 * lensSpecification[=].sphere   = -2.50
 * lensSpecification[=].cylinder = -0.75
 * lensSpecification[=].axis     = 85
