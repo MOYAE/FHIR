@@ -1,23 +1,23 @@
 // Source of truth: packages/api/services/fhirObservations/iop.ts (storeIOP -> formatObservation)
-// Status: documents CURRENT shape (v0.1.0). v0.1.x will normalize laterality to bodySite and
-// migrate valueString -> valueQuantity (UCUM mm[Hg]).
+// Status: v0.1.x TARGET shape. Laterality is carried on Observation.bodySite (not the legacy
+// custom extension), and the pressure is a valueQuantity in UCUM mm[Hg] (not valueString).
+// The Moyae API migration to this shape is tracked in the roadmap (Month 3 dual-write).
 //
-// HISTORY: prior to commit c4bf7d5f3 on Moyae monorepo, the instrument and eyeCode components
-// emitted system="https://www.snomed.org/" (non-canonical, would fail FHIR SNOMED validation).
-// This profile now uses the canonical $SCT URI matching the fixed code path. Legacy data persists
-// in HealthLake with the old URI; the fetchIOP() read path matches by SNOMED code only and
-// resolves both shapes.
+// HISTORY: prior to this migration Moyae emitted laterality on the custom extension
+// http://hl7.org/fhir/uv/ophthalmology/StructureDefinition/laterality, redundantly on a SNOMED
+// eyeCode component (8966001/18944008), and the pressure as a valueString. The
+// [Relationships](relationships.html) page documents that legacy shape and the migration.
 
 Profile:        MoyaeIntraocularPressure
 Parent:         Observation
 Id:             moyae-intraocular-pressure
-Title:          "Moyae Intraocular Pressure Observation (current shape)"
+Title:          "Moyae Intraocular Pressure Observation"
 Description:    """
-An Intraocular Pressure (IOP) Observation as currently emitted by the Moyae API.
+An Intraocular Pressure (IOP) Observation emitted by the Moyae API.
 
-**One Observation is created per eye** — a single IOP exam in Moyae produces two Observation resources, one for the right eye and one for the left, each with its own `id`. Laterality is carried on a custom extension; the eye is also redundantly identified in a `component` entry. The pressure value is encoded as `valueString` rather than `valueQuantity`.
+**One Observation is created per eye** — a single IOP exam in Moyae produces two Observation resources, one for the right eye and one for the left, each with its own `id`. Laterality is carried on `Observation.bodySite`; the pressure value is a `valueQuantity` in UCUM `mm[Hg]`.
 
-This profile documents reality; the [Relationships](relationships.html) page describes the v0.1.x migration plan to `bodySite` and `valueQuantity`.
+See the [Relationships](relationships.html) page for the legacy (pre-migration) shape this profile replaces — laterality on a custom extension, a redundant eyeCode component, and the value as `valueString`.
 """
 
 * ^status = #draft
@@ -35,10 +35,6 @@ This profile documents reality; the [Relationships](relationships.html) page des
 * category.coding[exam].system = $OBS-CATEGORY (exactly)
 * category.coding[exam].code   = #exam (exactly)
 
-* extension contains $LATERALITY-EXT named laterality 0..1
-* extension[laterality].valueCodeableConcept.coding.system = $SCT (exactly)
-* extension[laterality].valueCodeableConcept.coding.code from MoyaeLateralityVS (required)
-
 * code.coding 1..*
 * code.coding.system = $SCT (exactly)
 * code.coding.code   = #41633001 (exactly)
@@ -50,29 +46,31 @@ This profile documents reality; the [Relationships](relationships.html) page des
 * effectiveDateTime 1..1
 * performer 0..*
 
-* component 1..*
+// Laterality: one Observation per eye, carried on bodySite (replaces the legacy laterality
+// extension + redundant eyeCode component). NOTE: exact SNOMED bodySite codes are still being
+// confirmed against ZEISS's body-site-eye value set (roadmap "items to confirm").
+* bodySite 1..1
+* bodySite.coding.system = $SCT (exactly)
+* bodySite.coding.code from MoyaeBodySiteEyeVS (required)
 
-// component[0] : the pressure reading itself
+// The pressure reading itself, in mm[Hg] (replaces the legacy component[pressure].valueString).
+* value[x] only Quantity
+* valueQuantity 1..1
+* valueQuantity.system = $UCUM (exactly)
+* valueQuantity.code   = #mm[Hg] (exactly)
+
+// Optional supporting detail retained from the source emission. The redundant eyeCode component
+// is intentionally gone — laterality now lives on bodySite.
+* component 0..*
 * component ^slicing.discriminator.type = #pattern
 * component ^slicing.discriminator.path = "code"
 * component ^slicing.rules = #open
 * component contains
-    pressure       1..1 and
     instrument     0..1 and
-    eyeCode        0..1 and
     correction     0..1
-
-* component[pressure].code.coding.system  = $SCT (exactly)
-* component[pressure].code.coding.code    = #41633001 (exactly)
-* component[pressure].value[x] only string
-* component[pressure].valueString 1..1
 
 * component[instrument].code.coding.system  = $SCT (exactly)
 * component[instrument].value[x] only string
-
-* component[eyeCode].code.coding.system     = $SCT (exactly)
-* component[eyeCode].code.coding.code from MoyaeEyeCodeVS (required)
-* component[eyeCode].value[x] only string
 
 * component[correction].code.coding.system  = $SCT (exactly)
 * component[correction].code.coding.code    = #410616005 (exactly)

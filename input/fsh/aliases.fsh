@@ -8,6 +8,7 @@ Alias: $SCT                  = http://snomed.info/sct
 // in HealthLake exports.
 Alias: $SCT-LEGACY           = https://www.snomed.org/
 Alias: $OBS-CATEGORY         = http://terminology.hl7.org/CodeSystem/observation-category
+Alias: $UCUM                 = http://unitsofmeasure.org
 Alias: $LATERALITY-EXT       = http://hl7.org/fhir/uv/ophthalmology/StructureDefinition/laterality
 Alias: $VP-PRODUCT           = http://terminology.hl7.org/CodeSystem/ex-visionprescriptionproduct
 
