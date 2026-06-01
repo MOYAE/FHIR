@@ -2,6 +2,10 @@
 // See packages/api/services/fhirObservations/* for source paths these mirror.
 
 Alias: $SCT                  = http://snomed.info/sct
+// Historical only: the SNOMED International website URL was used as a system URI in
+// some Moyae emissions prior to Moyae monorepo commit c4bf7d5f3. No current profile or
+// example references it. Kept as documentation in case partners encounter pre-fix data
+// in HealthLake exports.
 Alias: $SCT-LEGACY           = https://www.snomed.org/
 Alias: $OBS-CATEGORY         = http://terminology.hl7.org/CodeSystem/observation-category
 Alias: $LATERALITY-EXT       = http://hl7.org/fhir/uv/ophthalmology/StructureDefinition/laterality

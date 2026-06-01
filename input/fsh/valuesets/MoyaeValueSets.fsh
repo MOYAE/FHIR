@@ -11,10 +11,10 @@ Description: "SNOMED codes used by Moyae on the laterality extension. `419465000
 ValueSet:   MoyaeEyeCodeVS
 Id:         moyae-eye-code-vs
 Title:      "Moyae Eye Codes (component scope)"
-Description: "SNOMED eye codes used on Observation.component when redundantly carrying laterality alongside the extension. NOTE: emitted today against the LEGACY SNOMED URI (https://www.snomed.org/) rather than the canonical $SCT URI; the profile reflects this."
+Description: "SNOMED eye codes used on Observation.component when redundantly carrying laterality alongside the extension. Emitted against the canonical $SCT URI as of Moyae commit c4bf7d5f3."
 * ^status = #draft
-* $SCT-LEGACY#8966001  "Left Eye"
-* $SCT-LEGACY#18944008 "Right Eye"
+* $SCT#8966001  "Left Eye"
+* $SCT#18944008 "Right Eye"
 
 ValueSet:   MoyaeVisualAcuityCodeVS
 Id:         moyae-visual-acuity-code-vs

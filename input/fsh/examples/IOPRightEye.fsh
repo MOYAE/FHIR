@@ -27,12 +27,12 @@ Description: "Right eye, 14 mmHg, Goldmann applanation tonometer, with the per-p
 * component[=].code.coding[=].display = "Intraocular pressure (observable entity)"
 * component[=].valueString = "14"
 
-* component[+].code.coding[+].system  = $SCT-LEGACY
+* component[+].code.coding[+].system  = $SCT
 * component[=].code.coding[=].code    = #391939000
 * component[=].code.coding[=].display = "Goldmann applanation tonometer"
 * component[=].valueString = "Goldmann applanation tonometer"
 
-* component[+].code.coding[+].system  = $SCT-LEGACY
+* component[+].code.coding[+].system  = $SCT
 * component[=].code.coding[=].code    = #18944008
 * component[=].code.coding[=].display = "Right Eye"
 * component[=].valueString = "Right Eye"

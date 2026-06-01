@@ -5,43 +5,49 @@ This page documents the deliberate and inherited characteristics of Moyae's curr
 ### Why `Observation.focus` references VisionPrescription
 {: #focus }
 
-When `typeOfExam` is `corrected` or `refraction`, MoyaeVisualAcuity and MoyaeRefraction Observations populate `Observation.focus` with a reference to the companion VisionPrescription. This is **deliberate but unusual**.
+When `typeOfExam` is `corrected` or `refraction`, MoyaeVisualAcuity and MoyaeRefraction Observations populate `Observation.focus` with a reference to the companion VisionPrescription.
 
-**Background.** FHIR R4 defines `Observation.focus` as: *"The actual focus of an observation when it is not the patient of record representing something or someone associated with the patient such as a spouse, parent, fetus, or donor."* The canonical examples are a fetus during pregnancy or a relative being characterized.
+**This is non-standard, and we know it.** FHIR R4 defines `Observation.focus` as: *"The actual focus of an observation when it is not the patient of record representing something or someone associated with the patient such as a spouse, parent, fetus, or donor."* The canonical examples are a fetus during pregnancy or a relative being characterized. Using it for a measurement-to-prescription relationship is **not the pattern FHIR intends**, and validators that enforce the description strictly may flag it.
 
-**Moyae's use.** The Observation is *about* the patient's eyes, and the refractive numbers (sphere / cylinder / axis / add / prism) live on the companion VisionPrescription. `focus` carries the reference so queries that fetch the VA can co-resolve the refractive measurement in one round trip.
+**Why Moyae uses it today.** The Observation is *about* the patient's eyes, and the refractive numbers (sphere / cylinder / axis / add / prism) live on the companion VisionPrescription. `focus` carries the reference so queries that fetch the VA can co-resolve the refractive measurement in one round trip. This was a pragmatic choice early in Moyae's FHIR adoption and has stayed in production.
 
-**Why not `Observation.derivedFrom`?** Semantically `derivedFrom` is closer: a VA reading taken at a corrected refraction is, in a sense, derived from the refraction. The current code uses `focus`; v0.1.x will evaluate moving to `derivedFrom` once partners weigh in.
+**Planned migration to an extension.** v0.1.x will retire the `Observation.focus` use and replace it with a Moyae-defined extension at `https://fhir.moyae.com/StructureDefinition/measurement-prescription` carrying a `Reference(VisionPrescription)`. The semantics are clearer, the validator profile lookup is unambiguous, and the migration leaves `Observation.focus` available for its intended canonical use if Moyae ever needs it (e.g., a child VA exam performed in front of a parent).
 
-**Why not `Observation.basedOn` or `Observation.partOf`?** These reference Request resources or Procedure / Encounter shaped resources respectively. Neither matches the measurement-to-prescription relationship cleanly.
+The migration plan:
 
-**Comparison to peer IGs.** The HL7 Eye Care IG and ZEISS Eyecare Concepts IG treat refractive measurements as their own Observation profiles (subjective / objective / habitual lens prescription as an Observation profile). Moyae's pattern of using VisionPrescription as the measurement carrier is a Moyae-specific design choice that preserves the measurement → signed-prescription audit trail on a single resource. The trade-off is the unusual `focus` reference and the dual-status overload on VisionPrescription.
+1. **v0.1.x (code change in `packages/api`):** start dual-writing — emit both the existing `focus` and the new `measurement-prescription` extension. Reads tolerate either.
+2. **v0.2.0:** flip the reads to prefer the extension.
+3. **v0.2.x backfill:** rewrite legacy Observations to add the extension. After completion, stop emitting `focus`.
 
-### Two SNOMED system URIs are emitted
+**Note on R5.** The Observation resource in FHIR R5 keeps `focus` with the same definition, but the broader R5 design pattern leans on extensions for relationships that don't fit the canonical FHIR R4 reference slots. Moving to an extension aligns Moyae with where the standard is heading.
+
+**Comparison to peer IGs.** The HL7 Eye Care IG and ZEISS Eyecare Concepts IG treat refractive measurements as their own Observation profiles (subjective / objective / habitual lens prescription as an Observation profile). Moyae's pattern of using VisionPrescription as the measurement carrier is a Moyae-specific design choice that preserves the measurement → signed-prescription audit trail on a single resource. The trade-off is the unusual `focus` reference (to be replaced) and the dual-status overload on VisionPrescription.
+
+### Two SNOMED system URIs — FIXED in v0.1.0
 {: #snomed-uris }
 
-Today's Moyae code uses two different system URIs for SNOMED codes:
+**Status: FIXED.** Prior to Moyae commit [`c4bf7d5f3`](https://github.com/MOYAE/Moyae/commit/c4bf7d5f3), `iop.ts` emitted the instrument and eye components with `system = "https://www.snomed.org/"`. That URL is the SNOMED International company website, **not** the canonical FHIR SNOMED system URI (`http://snomed.info/sct`), and FHIR validators correctly reject codings under it.
 
-* `http://snomed.info/sct` — canonical FHIR SNOMED system URI. Used for the IOP code, the laterality extension, refraction method procedure codes, and most VA component codes.
-* `https://www.snomed.org/` — non-canonical, legacy URL. Used today for the instrument component and the eye component in `MoyaeIntraocularPressure`.
+The fix:
 
-The latter is **not a valid SNOMED system URI** for FHIR validation. The profiles document this faithfully (see `$SCT-LEGACY` in `aliases.fsh`). **v0.1.x will canonicalize to `$SCT` across the board**, which requires a small change in `packages/api/services/fhirObservations/iop.ts`.
+- All `splitEyes()`, `formatReturnObject()`, and `fetchIOPHistory()` emission paths now use `http://snomed.info/sct`.
+- `fetchIOP()` was refactored to match the left/right eye component by SNOMED code only, so existing legacy data in HealthLake (which still has the old URI) continues to read correctly without a backfill.
 
-### The `is-cc` boolean uses a Moyae URI, not SNOMED
+This profile and the IOP example are now consistent with the canonical URI.
+
+### `is-cc` CodeSystem published — FIXED in v0.1.0
 {: #is-cc }
 
-The "with correction" component on MoyaeVisualAcuity is emitted with `code.coding.system = https://moyae.com/is-cc` and `code.coding.code = "cc"`. This is a Moyae-defined URI that does not currently resolve to a CodeSystem.
+**Status: FIXED.** The "with correction" boolean component on MoyaeVisualAcuity and MoyaeRefraction uses `code.coding.system = https://moyae.com/is-cc`. Previously this URL did not resolve to a CodeSystem. As of v0.1.0, Moyae publishes the [MoyaeIsCcCS](CodeSystem-moyae-is-cc-cs.html) CodeSystem at exactly that URL with the single concept `cc` ("with correction"). The URL now resolves and validators can look up the concept.
 
-There is a SNOMED concept for *"with correction"* (`419775003` is BCVA which is related but not identical). v0.1.x will either (a) mint a Moyae CodeSystem at this URL and publish it as part of the IG, or (b) replace the flag with an idiomatic SNOMED procedure code.
-
-### Identifier patterns lack a system
+### Identifier patterns lack a system (accepted as-is for v0.1.0)
 {: #identifier-system }
 
 * `MoyaeIntraocularPressure.identifier` is emitted as `{ value: "intraocular-pressure" }` with no system.
 * `MoyaeVisualAcuity.identifier` is emitted as `{ value: "visual_acuity" }` with no system (and note the underscore, while IOP uses a hyphen).
 * `MoyaeVisionPrescription.identifier` is emitted as `{ system: "https://moyae.com/vision-prescription-status", value: "active" }`. The system URI suggests state, not identity.
 
-These are documentary artifacts of the current code and should be normalized in v0.1.x to either a single canonical Moyae identifier system or removed where they don't carry external meaning.
+**Decision:** retained as-is for v0.1.0. Identifiers are not load-bearing for partner interoperability today, and rewriting the values would invalidate every existing reference in HealthLake. v1.0 may revisit if there is partner pressure.
 
 ### VisionPrescription is dual-purpose
 {: #vp-dual-purpose }
@@ -59,7 +65,7 @@ Moyae's pattern stays in v0.1.0. The narrative documents it so partners can plan
 There is no distinct "Refraction" resource type in Moyae's code. A refraction is a Visual Acuity Observation with:
 
 * `Observation.code` set to SNOMED `251794006` ("Refraction") instead of the corrected-VA code.
-* `Observation.focus` always populated with the companion VisionPrescription.
+* `Observation.focus` always populated with the companion VisionPrescription (to migrate to an extension — see [focus](#focus) above).
 * Method flags (manifest, autorefraction, cycloplegic, overrefraction) on boolean components.
 
 `MoyaeRefraction` exists in this IG to give partners a distinct, queryable profile identity, but it is structurally a slice of the same Observation path.

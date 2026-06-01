@@ -49,6 +49,7 @@ This is the canonical "VA Observation" path. The separate [MoyaeRefraction](Stru
 * component 0..*
 * component ^short = "Mixed: method-flag boolean components, per-eye distance/intermediate/near valueString measurements (incl. pinhole and binocular variants), and per-eye vertex distance."
 
-// Note: component slicing is intentionally NOT enumerated here because Moyae emits
-// a wide and conditionally-present set. The narrative documents each code; v0.1.x
-// will add explicit slices once we lock the catalog.
+// The "with correction" boolean flag uses the Moyae-published CodeSystem at
+// https://moyae.com/is-cc (see MoyaeIsCcCS). Other method flags use SNOMED procedure codes.
+// Component slicing for the full code catalog is intentionally NOT enumerated here;
+// v0.1.x will add explicit slices once we lock the set.

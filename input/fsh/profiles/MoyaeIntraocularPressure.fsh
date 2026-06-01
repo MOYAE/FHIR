@@ -1,6 +1,12 @@
 // Source of truth: packages/api/services/fhirObservations/iop.ts (storeIOP -> formatObservation)
-// Status: documents CURRENT shape (v0.1.0). v0.1.x will normalize laterality to bodySite,
-// migrate valueString -> valueQuantity (UCUM mm[Hg]), and canonicalize SNOMED system URI.
+// Status: documents CURRENT shape (v0.1.0). v0.1.x will normalize laterality to bodySite and
+// migrate valueString -> valueQuantity (UCUM mm[Hg]).
+//
+// HISTORY: prior to commit c4bf7d5f3 on Moyae monorepo, the instrument and eyeCode components
+// emitted system="https://www.snomed.org/" (non-canonical, would fail FHIR SNOMED validation).
+// This profile now uses the canonical $SCT URI matching the fixed code path. Legacy data persists
+// in HealthLake with the old URI; the fetchIOP() read path matches by SNOMED code only and
+// resolves both shapes.
 
 Profile:        MoyaeIntraocularPressure
 Parent:         Observation
@@ -61,13 +67,10 @@ This profile documents reality; the [Relationships](relationships.html) page des
 * component[pressure].value[x] only string
 * component[pressure].valueString 1..1
 
-// PROBLEM: instrument & eye components in current code use the LEGACY SNOMED URI
-// (https://www.snomed.org/) which is not the canonical FHIR SNOMED system URI.
-// The profile documents this as it is. v0.1.x will canonicalize to $SCT.
-* component[instrument].code.coding.system  = $SCT-LEGACY
+* component[instrument].code.coding.system  = $SCT (exactly)
 * component[instrument].value[x] only string
 
-* component[eyeCode].code.coding.system     = $SCT-LEGACY
+* component[eyeCode].code.coding.system     = $SCT (exactly)
 * component[eyeCode].code.coding.code from MoyaeEyeCodeVS (required)
 * component[eyeCode].value[x] only string
 
