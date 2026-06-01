@@ -61,7 +61,7 @@ jobs:
             https://github.com/HL7/fhir-ig-publisher/releases/latest/download/publisher.jar \
             -o input-cache/publisher.jar
 
-      - name: Run IG Publisher (-no-sushi: we already ran it)
+      - name: "Run IG Publisher (-no-sushi: we already ran it)"
         run: java -Xmx4g -jar input-cache/publisher.jar -ig . -no-sushi
 
       - name: Preserve CNAME for custom domain in published artifact
