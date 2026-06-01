@@ -1,0 +1,98 @@
+name: Build & Deploy FHIR IG
+
+# Triggers:
+#  - every push to main rebuilds and deploys the IG to fhir.moyae.com
+#  - workflow_dispatch lets us re-run from the Actions tab without a commit
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Permissions required for the modern GitHub Pages deployment flow.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Only one IG build/deploy can be in flight at a time. Don't cancel in-progress
+# runs — we want the most recent commit to win cleanly.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Build IG with SUSHI + IG Publisher
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java 17 (required by IG Publisher)
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Node 20 (required by SUSHI)
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install SUSHI
+        run: npm install -g fsh-sushi
+
+      - name: Run SUSHI (FSH → FHIR JSON in fsh-generated/)
+        run: sushi .
+
+      - name: Cache IG Publisher jar + dependency packages
+        id: cache-publisher
+        uses: actions/cache@v4
+        with:
+          path: input-cache
+          key: ig-publisher-${{ runner.os }}-v1
+
+      - name: Download HL7 IG Publisher (if not cached)
+        if: steps.cache-publisher.outputs.cache-hit != 'true'
+        run: |
+          mkdir -p input-cache
+          curl -L \
+            https://github.com/HL7/fhir-ig-publisher/releases/latest/download/publisher.jar \
+            -o input-cache/publisher.jar
+
+      - name: Run IG Publisher (-no-sushi: we already ran it)
+        run: java -Xmx4g -jar input-cache/publisher.jar -ig . -no-sushi
+
+      - name: Preserve CNAME for custom domain in published artifact
+        run: cp CNAME output/CNAME
+
+      - name: Upload qa.html as workflow artifact (for inspection on failure)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ig-qa
+          path: |
+            output/qa.html
+            output/qa.json
+          retention-days: 14
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload output/ as Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: output
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
