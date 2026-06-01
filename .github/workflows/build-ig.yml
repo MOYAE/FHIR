@@ -40,6 +40,14 @@ jobs:
         with:
           node-version: '20'
 
+      - name: Setup Ruby (required by IG Publisher's Jekyll rendering step)
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.1'
+
+      - name: Install Jekyll
+        run: gem install jekyll
+
       - name: Install SUSHI
         run: npm install -g fsh-sushi
 
