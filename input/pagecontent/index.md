@@ -29,6 +29,10 @@ Moyae operates a translation layer between the canonical shapes documented here 
 
 Authored in [FHIR Shorthand](https://fshschool.org/) and built with [SUSHI](https://fshschool.org/docs/sushi/) + the [HL7 IG Publisher](https://github.com/HL7/fhir-ig-publisher). Source repo: [github.com/MOYAE/FHIR](https://github.com/MOYAE/FHIR).
 
+### Acknowledgments
+
+Thanks to **David Flade** and **Tero Lipponen** for reviewing early drafts of this Implementation Guide. Their review is ongoing, and not all of their suggestions are reflected in the current version — revisions are being incorporated across upcoming releases.
+
 ### Contact
 
 Implementation feedback, partner inquiries: [partnerships@moyae.com](mailto:partnerships@moyae.com) or book at [calendar.app.google/joEV8YqqYastTaNf6](https://calendar.app.google/joEV8YqqYastTaNf6).
