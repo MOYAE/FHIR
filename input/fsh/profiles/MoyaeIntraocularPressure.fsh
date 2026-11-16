@@ -1,23 +1,23 @@
-// Source of truth: packages/api/services/fhirObservations/iop.ts (storeIOP -> formatObservation)
-// Status: v0.1.x TARGET shape. Laterality is carried on Observation.bodySite (not the legacy
-// custom extension), and the pressure is a valueQuantity in UCUM mm[Hg] (not valueString).
-// The Moyae API migration to this shape is tracked in the roadmap (Month 3 dual-write).
+// Source of truth: packages/api/services/fhirObservations/iopBuilder.ts (splitEyes -> formatObservation)
+// Status: TARGET shape. Laterality on Observation.bodySite (shipped July 2026: the write path
+// appends bodySite with the active SNOMED eye-structure concepts) and the pressure as a
+// valueQuantity in UCUM mm[Hg] (NOT shipped: production still writes the pressure as a
+// valueString component and the tonometer as a component rather than method).
 //
-// HISTORY: prior to this migration Moyae emitted laterality on the custom extension
-// http://hl7.org/fhir/uv/ophthalmology/StructureDefinition/laterality, redundantly on a SNOMED
-// eyeCode component (8966001/18944008), and the pressure as a valueString. The
-// [Relationships](relationships.html) page documents that legacy shape and the migration.
+// The legacy laterality extension (http://hl7.org/fhir/uv/ophthalmology/StructureDefinition/laterality)
+// and the eyeCode component are still written alongside bodySite for older readers. The
+// [Relationships](relationships.html) page documents the legacy shape and the migration state.
 
 Profile:        MoyaeIntraocularPressure
 Parent:         Observation
 Id:             moyae-intraocular-pressure
-Title:          "Moyae Intraocular Pressure Observation"
+Title:          "Moyae Intraocular Pressure Observation (target shape)"
 Description:    """
 An Intraocular Pressure (IOP) Observation emitted by the Moyae API.
 
-**One Observation is created per eye** — a single IOP exam in Moyae produces two Observation resources, one for the right eye and one for the left, each with its own `id`. Laterality is carried on `Observation.bodySite`; the pressure value is a `valueQuantity` in UCUM `mm[Hg]`.
+**One Observation is created per eye** — a single IOP exam in Moyae produces two Observation resources, one for the right eye and one for the left, each with its own `id`. Laterality is carried on `Observation.bodySite` using the active SNOMED eye-structure concepts; the pressure value is a `valueQuantity` in UCUM `mm[Hg]`; the tonometer is on `method`.
 
-See the [Relationships](relationships.html) page for the legacy (pre-migration) shape this profile replaces — laterality on a custom extension, a redundant eyeCode component, and the value as `valueString`.
+**Migration state (October 2026).** The `bodySite` half of this profile is in production. The `valueQuantity` and `method` halves are not: the writer still emits the pressure as a `valueString` component (SNOMED `41633001`) and the instrument as a component, and also writes the legacy laterality extension and eye component for older readers. Resources read from the store today therefore carry both the new `bodySite` and the legacy fields. See the [Relationships](relationships.html) page.
 """
 
 * ^status = #draft

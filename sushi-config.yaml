@@ -2,9 +2,9 @@ id: moyae.fhir.ophthalmology
 canonical: https://fhir.moyae.com
 name: MoyaeFhirOphthalmology
 title: "Moyae Ophthalmology FHIR Implementation Guide"
-description: "Implementation Guide for ophthalmology FHIR resources published by Moyae, Inc. — covers Visual Acuity, Intraocular Pressure, and Refraction observations in alignment with the ZEISS Eyecare Concepts IG and TOPCON's numeric ocular device data exchange pattern."
+description: "Implementation Guide for the ophthalmology FHIR resources the Moyae EMR emits: Visual Acuity, Intraocular Pressure and Refraction observations, VisionPrescription and its extensions. Documents the current shape and the target shape it is converging on with peer ophthalmology guides."
 status: draft
-version: 0.1.0
+version: 0.1.1
 fhirVersion: 4.0.1
 copyrightYear: 2026+
 releaseLabel: ci-build
@@ -30,17 +30,30 @@ parameters:
   show-inherited-invariants: false
   apply-publisher: true
   apply-version: true
-  # The MoyaeIsCcCS CodeSystem is deliberately published at https://moyae.com/is-cc
-  # (where the Moyae API emits it) rather than under the IG canonical, so whitelist it.
-  special-url: https://moyae.com/is-cc
+  # These resources are deliberately published at the URLs the Moyae API already
+  # writes (under moyae.com) rather than under the IG canonical, so whitelist them.
+  special-url:
+    - https://moyae.com/is-cc
+    - https://moyae.com/fhir/CodeSystem/lens-material
+    - https://moyae.com/fhir/StructureDefinition/vision-prescription-source-observation
+    - https://moyae.com/fhir/StructureDefinition/lens-material
+    - https://moyae.com/fhir/StructureDefinition/balance-lens
+    - https://moyae.com/StructureDefinition/filter-by-profile
+    - https://moyae.com/StructureDefinition/filter-by-resource-type
 
 pages:
   index.md:
     title: Home
   relationships.md:
     title: Relationships and caveats
+  subscriptions.md:
+    title: Subscriptions
+  history.md:
+    title: History
 
 menu:
   Home: index.html
   Artifacts: artifacts.html
   Relationships: relationships.html
+  Subscriptions: subscriptions.html
+  History: history.html

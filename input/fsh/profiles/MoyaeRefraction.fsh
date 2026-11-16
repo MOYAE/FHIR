@@ -16,10 +16,10 @@ Title:          "Moyae Refraction Observation (current shape)"
 Description:    """
 A Refraction Observation as currently emitted by Moyae. Structurally identical to [MoyaeVisualAcuity](StructureDefinition-moyae-visual-acuity.html) — same Observation resource, same component shape — with two distinguishing characteristics:
 
-1. `Observation.code` is the SNOMED **Refraction** concept (`251794006`), not a visual-acuity code.
-2. The refractive measurement values (sphere / cylinder / axis / add / prism) are carried on the companion VisionPrescription referenced by `Observation.focus`, with `VisionPrescription.status = "draft"`.
+1. `Observation.code` is the SNOMED **Refraction** concept (`251794006`), not a visual-acuity code. A manifest refraction also carries the SNOMED **Subjective refraction** coding (`397277005`); an autorefraction or retinoscopy carries **Objective refraction** (`397276001`). These are appended after the Refraction coding and match the discriminators used by device-vendor refraction profiles.
+2. The refractive measurement values (sphere / cylinder / axis / add / prism) are carried on the companion VisionPrescription referenced by `Observation.focus`, with `VisionPrescription.status = "draft"`. The VisionPrescription points back through the source-observation extension.
 
-Refraction method (subjective / autorefraction / cycloplegic / overrefraction) is captured as boolean component flags using SNOMED procedure codes. See [Caveats](relationships.html#focus) for why `.focus` rather than `.derivedFrom` is used today.
+Refraction method (subjective / autorefraction / retinoscopy / cycloplegic / overrefraction) is also captured as boolean component flags using SNOMED procedure codes. See [Caveats](relationships.html#focus) for why `.focus` rather than `.derivedFrom` is used today.
 """
 
 * ^status = #draft
@@ -33,8 +33,19 @@ Refraction method (subjective / autorefraction / cycloplegic / overrefraction) i
 * category.coding.system = $OBS-CATEGORY (exactly)
 * category.coding.code   = #exam (exactly)
 
-* code.coding.system = $SCT (exactly)
-* code.coding.code   = #251794006 (exactly)
+// coding[0] is always Refraction; a subjective (397277005) or objective (397276001)
+// refraction coding follows it. Readers key off index 0.
+* code.coding 1..*
+* code.coding ^slicing.discriminator.type = #pattern
+* code.coding ^slicing.discriminator.path = "$this"
+* code.coding ^slicing.rules = #open
+* code.coding contains
+    refraction 1..1 and
+    subjective 0..1 and
+    objective 0..1
+* code.coding[refraction] = $SCT#251794006
+* code.coding[subjective] = $SCT#397277005
+* code.coding[objective]  = $SCT#397276001
 
 * subject 1..1
 * subject only Reference(Patient)

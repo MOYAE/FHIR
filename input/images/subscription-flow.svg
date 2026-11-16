@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 754" width="1000" height="754" font-family="Helvetica, Arial, sans-serif" font-size="13">
+<title>Subscription flow</title>
+<defs><marker id="a" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8 z" fill="#1f3a5f"/></marker></defs>
+<rect width="1000" height="754" fill="#ffffff"/>
+<rect x="10" y="14" width="160" height="46" rx="4" fill="#e8f0fa" stroke="#1f3a5f"/>
+<text x="90" y="34" text-anchor="middle" font-weight="bold" fill="#1f3a5f">Data creator</text>
+<text x="90" y="51" text-anchor="middle" font-size="11" fill="#333">(Moyae EMR user)</text>
+<line x1="90" y1="60" x2="90" y2="734" stroke="#9aa5b1" stroke-dasharray="4 4"/>
+<rect x="210" y="14" width="160" height="46" rx="4" fill="#e8f0fa" stroke="#1f3a5f"/>
+<text x="290" y="34" text-anchor="middle" font-weight="bold" fill="#1f3a5f">Moyae FHIR API</text>
+<text x="290" y="51" text-anchor="middle" font-size="11" fill="#333">+ authorization server</text>
+<line x1="290" y1="60" x2="290" y2="734" stroke="#9aa5b1" stroke-dasharray="4 4"/>
+<rect x="430" y="14" width="160" height="46" rx="4" fill="#f3f3f3" stroke="#1f3a5f"/>
+<text x="510" y="34" text-anchor="middle" font-weight="bold" fill="#1f3a5f">Subscriber</text>
+<text x="510" y="51" text-anchor="middle" font-size="11" fill="#333">SMART Backend Service</text>
+<line x1="510" y1="60" x2="510" y2="734" stroke="#9aa5b1" stroke-dasharray="4 4"/>
+<rect x="650" y="14" width="160" height="46" rx="4" fill="#f3f3f3" stroke="#1f3a5f"/>
+<text x="730" y="34" text-anchor="middle" font-weight="bold" fill="#1f3a5f">Subscriber</text>
+<text x="730" y="51" text-anchor="middle" font-size="11" fill="#333">FHIR server</text>
+<line x1="730" y1="60" x2="730" y2="734" stroke="#9aa5b1" stroke-dasharray="4 4"/>
+<rect x="830" y="14" width="160" height="46" rx="4" fill="#f3f3f3" stroke="#1f3a5f"/>
+<text x="910" y="42" text-anchor="middle" font-weight="bold" fill="#1f3a5f">Viewer</text>
+<line x1="910" y1="60" x2="910" y2="734" stroke="#9aa5b1" stroke-dasharray="4 4"/>
+<line x1="510" y1="114" x2="292" y2="114" stroke="#1f3a5f" stroke-width="1.5" marker-end="url(#a)"/>
+<text x="400.0" y="107" text-anchor="middle" fill="#111">1. POST Subscription (finished Encounters)</text>
+<line x1="90" y1="166" x2="288" y2="166" stroke="#1f3a5f" stroke-width="1.5" marker-end="url(#a)"/>
+<text x="190.0" y="159" text-anchor="middle" fill="#111">2. Store Patient and Appointment</text>
+<line x1="510" y1="218" x2="292" y2="218" stroke="#1f3a5f" stroke-width="1.5" marker-end="url(#a)"/>
+<text x="400.0" y="211" text-anchor="middle" fill="#111">3. Search today's Appointments, include Patient (periodic)</text>
+<line x1="510" y1="270" x2="728" y2="270" stroke="#1f3a5f" stroke-width="1.5" marker-end="url(#a)"/>
+<text x="620.0" y="263" text-anchor="middle" fill="#111">4. Patient $match</text>
+<line x1="910" y1="322" x2="732" y2="322" stroke="#1f3a5f" stroke-width="1.5" marker-end="url(#a)"/>
+<text x="820.0" y="315" text-anchor="middle" fill="#111">5. Retrieve and display Patient</text>
+<line x1="90" y1="374" x2="288" y2="374" stroke="#1f3a5f" stroke-width="1.5" marker-end="url(#a)"/>
+<text x="190.0" y="367" text-anchor="middle" fill="#111">6. Store refraction and visual acuity</text>
+<path d="M290,414 h36 v20 h-34" fill="none" stroke="#1f3a5f" stroke-width="1.5" marker-end="url(#a)"/>
+<text x="334" y="428" fill="#111">7. Encounter created, then finished</text>
+<line x1="290" y1="478" x2="508" y2="478" stroke="#1f3a5f" stroke-width="1.5" marker-end="url(#a)"/>
+<text x="400.0" y="471" text-anchor="middle" fill="#111">8. Notify: POST Bundle to the endpoint</text>
+<line x1="510" y1="530" x2="728" y2="530" stroke="#1f3a5f" stroke-width="1.5" stroke-dasharray="6 5" marker-end="url(#a)"/>
+<text x="620.0" y="523" text-anchor="middle" fill="#111">9. Patient $match (if not yet known)</text>
+<path d="M510,570 h36 v20 h-34" fill="none" stroke="#1f3a5f" stroke-width="1.5" marker-end="url(#a)"/>
+<text x="554" y="584" fill="#111">10. Validate against the requested profiles</text>
+<line x1="510" y1="634" x2="728" y2="634" stroke="#1f3a5f" stroke-width="1.5" marker-end="url(#a)"/>
+<text x="620.0" y="627" text-anchor="middle" fill="#111">11. POST transaction Bundle</text>
+<line x1="910" y1="686" x2="732" y2="686" stroke="#1f3a5f" stroke-width="1.5" marker-end="url(#a)"/>
+<text x="820.0" y="679" text-anchor="middle" fill="#111">12. Retrieve and display measurements</text>
+</svg>

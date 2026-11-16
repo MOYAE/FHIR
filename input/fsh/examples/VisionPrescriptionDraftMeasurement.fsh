@@ -10,6 +10,7 @@ Description: "A draft VisionPrescription carrying the in-progress refractive mea
 * identifier.system = $MOYAE-VP-IDENT-SYS
 * identifier.value  = "active"
 * status            = #draft
+* extension[sourceObservation].valueReference = Reference(Example-MoyaeRefraction-Manifest)
 * created           = "2026-05-31T14:30:00-05:00"
 * dateWritten       = "2026-05-31T14:30:00-05:00"
 * patient.reference   = "Patient/example-patient"

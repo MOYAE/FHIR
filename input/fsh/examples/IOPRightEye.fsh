@@ -22,8 +22,8 @@ Description: "Right eye, 14 mmHg, Goldmann applanation tonometer, in the v0.1.x 
 * effectiveDateTime   = "2026-05-31T14:30:00-05:00"
 
 * bodySite.coding[+].system  = $SCT
-* bodySite.coding[=].code    = #1290030002
-* bodySite.coding[=].display = "Right eye"
+* bodySite.coding[=].code    = #1290032005
+* bodySite.coding[=].display = "Structure of right eye proper"
 
 * valueQuantity.value  = 14
 * valueQuantity.system = $UCUM
