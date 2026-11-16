@@ -4,13 +4,14 @@ Source for the Moyae Ophthalmology FHIR Implementation Guide, published at **[fh
 
 ## Status
 
-**Pre-alpha (v0.1.0).** Profiles are in authoring. The published site is a placeholder pending the first profile cut.
+**Draft (v0.1.1).** Profiles document what the Moyae EMR emits today and the shape it is converging on. See the History page in the published guide for what changed per release.
 
-## Scope (v0.1.0)
+## Scope
 
 - Visual Acuity (Observation profile)
-- Intraocular Pressure (Observation profile)
-- Refraction — Subjective / Objective / Auto (3 Observation profiles)
+- Intraocular Pressure (Observation profile, target shape)
+- Refraction (Observation profile with subjective / objective codings)
+- VisionPrescription (profile) plus the source-observation, lens-material and balance-lens extensions
 
 ## Tooling
 
@@ -25,29 +26,31 @@ This IG is authored in [FHIR Shorthand (FSH)](https://fshschool.org/) and built 
 # install sushi
 npm install -g fsh-sushi
 
-# from repo root
-sushi build
+# from repo root: FSH -> fsh-generated/
+sushi .
 
-# IG Publisher (downloads on first run)
-./_genonce.sh   # or _genonce.bat on Windows
+# IG Publisher (Java 17; downloads dependency packages on first run)
+mkdir -p input-cache
+curl -L https://github.com/HL7/fhir-ig-publisher/releases/latest/download/publisher.jar -o input-cache/publisher.jar
+java -Xmx4g -jar input-cache/publisher.jar -ig . -no-sushi
 ```
 
-Build artifacts land in `output/` and are gitignored. The published site is served from the `main` branch via GitHub Pages with a `CNAME` pointing at `fhir.moyae.com`.
+Build artifacts land in `output/` and are gitignored. Every push to `main` runs `.github/workflows/build-ig.yml`, which builds and deploys to GitHub Pages with a `CNAME` pointing at `fhir.moyae.com`.
 
 ## Repository layout
 
 ```
 .
-├── index.md                  # GitHub Pages landing page (rendered by Jekyll until IG Publisher output replaces it)
+├── index.md                  # Repo landing page only; the IG Publisher output replaces it on deploy
 ├── CNAME                     # fhir.moyae.com
 ├── sushi-config.yaml         # SUSHI / IG metadata
 ├── ig.ini                    # IG Publisher config
 ├── input/
-│   ├── pagecontent/          # IG narrative pages
+│   ├── pagecontent/          # IG narrative pages (index, relationships, history)
 │   └── fsh/
-│       ├── profiles/         # StructureDefinitions
+│       ├── profiles/         # StructureDefinitions (profiles and extensions)
 │       ├── valuesets/        # ValueSets
-│       ├── codesystems/      # CodeSystems (if any)
+│       ├── codesystems/      # CodeSystems
 │       └── examples/         # Example instances
 └── README.md
 ```
@@ -58,7 +61,7 @@ Build artifacts land in `output/` and are gitignored. The published site is serv
 
 ## License
 
-CC0-1.0. See `LICENSE` (to be added).
+CC0-1.0.
 
 ## Contact
 

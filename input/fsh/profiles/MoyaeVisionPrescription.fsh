@@ -4,9 +4,12 @@
 //   - status = "draft"  : in-progress measurement (refraction-in-progress, lensometer reading).
 //                          Referenced from a MoyaeVisualAcuity or MoyaeRefraction Observation.focus.
 //   - status = "active" : the signed, finalized prescription handed to the patient or optical lab.
-// This is a deliberate alternative to the pattern some peer IGs use, where the measurement is an
-// Observation and VisionPrescription is reserved for the signed prescription. The narrative explains
-// the trade-offs.
+//                          Since September 2026 (MOYAE-3433) signing CREATES a new active resource
+//                          and leaves the draft untouched; the two have distinct ids.
+// Both carry the source-observation extension back to the exam Observation, the lens-material
+// and balance-lens extensions per lensSpecification where applicable, and application provenance
+// stamps. This is a deliberate alternative to the pattern some peer IGs use, where the measurement
+// is an Observation and VisionPrescription is reserved for the signed prescription.
 
 Profile:        MoyaeVisionPrescription
 Parent:         VisionPrescription
@@ -16,10 +19,17 @@ Description:    """
 A VisionPrescription as currently emitted by Moyae. This single profile covers two uses, distinguished by `status`:
 
 * **`status = "draft"`** — refractive *measurement* captured during an exam. Companion to a [MoyaeVisualAcuity](StructureDefinition-moyae-visual-acuity.html) or [MoyaeRefraction](StructureDefinition-moyae-refraction.html) Observation via the Observation's `focus` reference.
-* **`status = "active"`** — signed, finalized prescription. Carries the same `lensSpecification` shape; the prescriber field is required.
+* **`status = "active"`** — signed, finalized prescription, issued as a **separate resource** from the draft (signing no longer flips the draft's status). Carries the same `lensSpecification` shape; the prescriber field is required.
+
+Every VisionPrescription names its exam Observation through the [source-observation extension](StructureDefinition-vision-prescription-source-observation.html). Each `lensSpecification` may carry a [lens material](StructureDefinition-lens-material.html) and a [balance lens](StructureDefinition-balance-lens.html) marker, both mirrored into `note` for base-R4 readers.
 
 `lensSpecification` is a two-entry array, one per eye, each with eye-specific sphere / cylinder / axis / add / prism / brand / color / backCurve / diameter. Prism is always serialized as a 2-element array (vertical at index 0, horizontal at index 1) using placeholder `0` amounts when not clinically present.
 """
+
+* extension contains VisionPrescriptionSourceObservation named sourceObservation 0..1
+* lensSpecification.extension contains
+    LensMaterial named lensMaterial 0..1 and
+    BalanceLens named balanceLens 0..1
 
 * ^status = #draft
 

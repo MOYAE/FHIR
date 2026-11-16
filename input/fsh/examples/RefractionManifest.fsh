@@ -13,9 +13,12 @@ Description: "A subjective / manifest refraction Observation referencing the dra
 * category[=].coding[=].code    = #exam
 * category[=].coding[=].display = "Exam"
 
-* code.coding[+].system  = $SCT
-* code.coding[=].code    = #251794006
-* code.coding[=].display = "Refraction"
+* code.coding[refraction].system  = $SCT
+* code.coding[refraction].code    = #251794006
+* code.coding[refraction].display = "Refraction"
+* code.coding[subjective].system  = $SCT
+* code.coding[subjective].code    = #397277005
+* code.coding[subjective].display = "Subjective refraction"
 
 * subject.reference   = "Patient/example-patient"
 * encounter.reference = "Encounter/example-encounter"

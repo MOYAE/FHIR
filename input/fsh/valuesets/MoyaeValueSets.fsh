@@ -11,21 +11,25 @@ Description: "SNOMED codes used by Moyae on the laterality extension. `419465000
 ValueSet:   MoyaeEyeCodeVS
 Id:         moyae-eye-code-vs
 Title:      "Moyae Eye Codes (component scope)"
-Description: "SNOMED eye codes used on Observation.component when redundantly carrying laterality alongside the extension. Emitted against the canonical $SCT URI as of Moyae commit c4bf7d5f3."
+Description: "SNOMED eye codes found on legacy Observation.component entries that carried laterality alongside the extension. `18944008` and `8966001` are inactive in current SNOMED releases; the API now writes the active structure concepts (`1290032005`, `1290031003`) and normalizes these on read."
 * ^status = #draft
 * $SCT#8966001  "Left Eye"
 * $SCT#18944008 "Right Eye"
+* $SCT#1290032005 "Structure of right eye proper"
+* $SCT#1290031003 "Structure of left eye proper"
 
-// v0.1.x target: laterality moves to Observation.bodySite using these eye-structure codes,
-// replacing the legacy laterality extension + MoyaeEyeCodeVS component above. The exact code
-// set is still pending final confirmation (roadmap "items to confirm").
+// Laterality on Observation.bodySite. These are the active SNOMED eye-structure concepts
+// the API writes (packages/api/constants.ts rightEyeCode / leftEyeCode / bothEyesCode) and
+// the same three the ZEISS Eyecare Concepts body-site value set accepts.
+// 0.1.0 listed 1290030002 here by mistake; that concept is "Disorder of left eye proper".
 ValueSet:   MoyaeBodySiteEyeVS
 Id:         moyae-body-site-eye-vs
 Title:      "Moyae Eye Laterality (bodySite)"
-Description: "SNOMED eye codes used on `Observation.bodySite` to carry laterality. `1290030002` = Right eye, `1290031003` = Left eye."
+Description: "SNOMED eye-structure codes used on `Observation.bodySite` to carry laterality. `1290032005` = Structure of right eye proper, `1290031003` = Structure of left eye proper, `40638003` = Both eyes (binocular measurements)."
 * ^status = #draft
-* $SCT#1290030002 "Right eye"
-* $SCT#1290031003 "Left eye"
+* $SCT#1290032005 "Structure of right eye proper"
+* $SCT#1290031003 "Structure of left eye proper"
+* $SCT#40638003   "Both eyes"
 
 ValueSet:   MoyaeVisualAcuityCodeVS
 Id:         moyae-visual-acuity-code-vs

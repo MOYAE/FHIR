@@ -11,29 +11,37 @@ When `typeOfExam` is `corrected` or `refraction`, MoyaeVisualAcuity and MoyaeRef
 
 **Why Moyae uses it today.** The Observation is *about* the patient's eyes, and the refractive numbers (sphere / cylinder / axis / add / prism) live on the companion VisionPrescription. `focus` carries the reference so queries that fetch the VA can co-resolve the refractive measurement in one round trip. This was a pragmatic choice early in Moyae's FHIR adoption and has stayed in production.
 
-**Planned migration to an extension.** v0.1.x will retire the `Observation.focus` use and replace it with a Moyae-defined extension at `https://fhir.moyae.com/StructureDefinition/measurement-prescription` carrying a `Reference(VisionPrescription)`. The semantics are clearer, the validator profile lookup is unambiguous, and the migration leaves `Observation.focus` available for its intended canonical use if Moyae ever needs it (e.g., a child VA exam performed in front of a parent).
+**What shipped instead (September 2026).** 0.1.0 planned a forward extension on the Observation. On reflection the link belongs on the other side: no R4 Observation field (`derivedFrom`, `basedOn`, `partOf`) may legally reference a VisionPrescription, while a VisionPrescription naming the exam it came from is plain provenance. The API now writes the [source-observation extension](StructureDefinition-vision-prescription-source-observation.html) (`https://moyae.com/fhir/StructureDefinition/vision-prescription-source-observation`, a `Reference(Observation)`) on every draft and every signed VisionPrescription. The value is server-owned so a client round-tripping the resource cannot detach it. The peer device-vendor profile for refraction forbids `focus` outright (0..0), which this migration also satisfies once `focus` stops being written.
 
-The migration plan:
+Migration state:
 
-1. **v0.1.x (code change in `packages/api`):** start dual-writing — emit both the existing `focus` and the new `measurement-prescription` extension. Reads tolerate either.
-2. **v0.2.0:** flip the reads to prefer the extension.
-3. **v0.2.x backfill:** rewrite legacy Observations to add the extension. After completion, stop emitting `focus`.
+1. **Done:** dual-write. Every VisionPrescription carries the reverse link; Observations still carry `focus`.
+2. **In progress:** readers move to the VisionPrescription side. New code reads the extension; older readers still follow `focus`.
+3. **Next:** stop emitting `focus` once no reader depends on it. Legacy Observations keep their `focus` until a backfill removes it; the reverse link already exists on their prescriptions.
 
 **Note on R5.** The Observation resource in FHIR R5 keeps `focus` with the same definition, but the broader R5 design pattern leans on extensions for relationships that don't fit the canonical FHIR R4 reference slots. Moving to an extension aligns Moyae with where the standard is heading.
 
 **Comparison to peer IGs.** Some peer IGs (e.g. the HL7 Eye Care IG) treat refractive measurements as their own Observation profiles, separate from any prescription resource. Moyae's pattern of using VisionPrescription as the measurement carrier is a Moyae-specific design choice that preserves the measurement → signed-prescription audit trail on a single resource. The trade-off is the unusual `focus` reference (to be replaced) and the dual-status overload on VisionPrescription.
 
-### Two SNOMED system URIs — FIXED in v0.1.0
+### Two SNOMED system URIs — partly fixed
 {: #snomed-uris }
 
-**Status: FIXED.** Prior to Moyae commit [`c4bf7d5f3`](https://github.com/MOYAE/Moyae/commit/c4bf7d5f3), `iop.ts` emitted the instrument and eye components with `system = "https://www.snomed.org/"`. That URL is the SNOMED International company website, **not** the canonical FHIR SNOMED system URI (`http://snomed.info/sct`), and FHIR validators correctly reject codings under it.
+Early IOP emissions used `system = "https://www.snomed.org/"` on the instrument and eye components. That URL is the SNOMED International website, **not** the canonical FHIR SNOMED system URI (`http://snomed.info/sct`), and FHIR validators correctly reject codings under it.
 
-The fix:
+State as of October 2026:
 
-- All `splitEyes()`, `formatReturnObject()`, and `fetchIOPHistory()` emission paths now use `http://snomed.info/sct`.
-- `fetchIOP()` was refactored to match the left/right eye component by SNOMED code only, so existing legacy data in HealthLake (which still has the old URI) continues to read correctly without a backfill.
+- Reads match the eye component by SNOMED code only, so legacy data with the old URI continues to read correctly without a backfill.
+- The top-level `code`, the pressure component and the correction component are written with `http://snomed.info/sct`.
+- The default instrument component and the eye component in the IOP builder still carry the legacy URI on write. This is queued; until it lands, validators will flag those two components. The `bodySite` written on the same resource uses the canonical URI and is the field new readers should use for laterality.
 
-This profile and the IOP example are now consistent with the canonical URI.
+No profile or example in this guide uses the legacy URI.
+
+### Laterality: bodySite on every Observation
+{: #body-site }
+
+Since July 2026 the central Observation write path appends `bodySite` to any Observation whose `code` or `component` entries imply a side, using the active SNOMED eye-structure concepts `1290032005` (right), `1290031003` (left) and `40638003` (both). Eye-structure codes such as cornea or lens map back to the whole-eye concept. An existing `bodySite` is never overwritten. The inactive concepts `18944008` and `8966001` found in older resources are normalized to the active ones on read and were migrated in place.
+
+0.1.0 of this guide listed `1290030002` in the body-site value set as "Right eye". That concept is *Disorder of left eye proper*. The value set and the IOP example now carry the codes the API writes.
 
 ### `is-cc` CodeSystem published — FIXED in v0.1.0
 {: #is-cc }
@@ -54,28 +62,39 @@ This profile and the IOP example are now consistent with the canonical URI.
 
 Moyae uses `VisionPrescription.status = "draft"` as the in-exam **measurement** carrier and `status = "active"` as the signed **prescription**. The same resource type covers both lifecycle states.
 
-* **Pro:** A single resource preserves the measurement → prescription audit trail. The prescriber signature transitions status from draft to active. Partners querying for "the refraction taken at this encounter" don't need to look at two different resource types.
-* **Con:** One school of thought holds that VisionPrescription is fundamentally a prescribing (request) resource and that measurements belong on Observations. Tools that expect VisionPrescription to mean "signed Rx" can misinterpret draft instances.
+Since September 2026 signing **creates a new active resource** and leaves the draft untouched, so the measurement and the issued Rx have distinct ids, each with its own signature record and each pointing back at the exam Observation. Before that, signing flipped the draft's status in place, which lost the measurement as it was taken.
 
-Moyae's pattern stays in v0.1.0. The narrative documents it so partners can plan accordingly. Both patterns are valid; this is a design choice, not a bug.
+* **Pro:** The measurement → prescription audit trail is preserved on two resources of the same type linked to one exam. Partners querying for "the refraction taken at this encounter" look at one resource type.
+* **Con:** One school of thought holds that VisionPrescription is fundamentally a prescribing (request) resource and that measurements belong on Observations. Tools that expect VisionPrescription to mean "signed Rx" must filter on `status`.
+
+Moyae's pattern stays. The narrative documents it so partners can plan accordingly. Both patterns are valid; this is a design choice, not a bug.
+
+### Lens material and balance lens
+{: #lens-extensions }
+
+Two things the prescription editor records have no home in base R4 `lensSpecification`: the lens material, and a balance lens (an eye prescribed no correction, conventionally written "BAL" where the sphere goes, which cannot be a decimal). Both are carried as Moyae extensions on `lensSpecification` ([LensMaterial](StructureDefinition-lens-material.html), [BalanceLens](StructureDefinition-balance-lens.html)) and mirrored as a human-readable `note` so a base-R4 consumer that ignores extensions still sees them on a printed or rendered Rx.
 
 ### Refraction is not a separate Observation type
 {: #refraction-not-separate }
 
 There is no distinct "Refraction" resource type in Moyae's code. A refraction is a Visual Acuity Observation with:
 
-* `Observation.code` set to SNOMED `251794006` ("Refraction") instead of the corrected-VA code.
-* `Observation.focus` always populated with the companion VisionPrescription (to migrate to an extension — see [focus](#focus) above).
-* Method flags (manifest, autorefraction, cycloplegic, overrefraction) on boolean components.
+* `Observation.code` set to SNOMED `251794006` ("Refraction") instead of the corrected-VA code, followed by `397277005` (subjective refraction) for a manifest refraction or `397276001` (objective refraction) for an autorefraction or retinoscopy. The second coding is the same discriminator the device-vendor refraction profiles use, so a consumer built for those can tell the two apart without reading Moyae's boolean flags.
+* `Observation.focus` always populated with the companion VisionPrescription (transitional; see [focus](#focus) above).
+* Method flags (manifest, autorefraction, retinoscopy, cycloplegic, overrefraction) on boolean components.
+* `derivedFrom` pointing at the original Observation when the exam was imported from a prior visit.
 
 `MoyaeRefraction` exists in this IG to give partners a distinct, queryable profile identity, but it is structurally a slice of the same Observation path.
 
-### Partner customization is permanent infrastructure
+### Provenance stamps
+{: #provenance }
 
-The Moyae API includes a translation layer between the canonical shapes documented here and partner-specific profiles. **This layer is permanent** — Moyae does not plan to deprecate it. Partners can request customized endpoints, mappings, and per-partner derivations as part of the partnership program.
+VA, refraction and VisionPrescription writes carry two string extensions, application-name and application-version, so a consumer can tell which system produced a resource without a translation step. The URLs are the ones a device-vendor eyecare profile defines for the same purpose, used as-is rather than redefined. The version is stamped only when the deployment provides one, so a resource never asserts a version that is not real.
 
-This means partners do not need to consume the canonical shapes documented in this IG. The canonical shapes are the **reference point**; the translation layer adapts them to whatever a given partner needs.
+### Partner customization
+
+The partner FHIR API serves resources in the canonical shapes documented here. Per-partner mappings, derived endpoints and profile translations are offered through the partnership program as they are needed; they are built on top of the canonical shapes, which remain the reference point.
 
 ### Alignment with industry conventions
 
-Moyae is moving toward the per-Observation profile structure common in modern ophthalmology FHIR work: separate profiles for refraction sub-types, `bodySite`-based laterality, and `valueQuantity` with UCUM. Reaching parity with that structure is the goal of v0.1.x.
+Moyae is converging on the per-Observation profile structure used in current ophthalmology FHIR work: one Observation per eye and measurement, `bodySite`-based laterality with active SNOMED eye-structure concepts, `valueQuantity` with pinned UCUM units, method on `method`, and refraction components in diopters and degrees. Laterality and the refraction discriminators are in production; typed values and method are the remaining gap. Moyae participates in the CCOI Interoperability and Standards working group and intends to adopt whatever unit and code bindings that group settles on for the HL7 Eye Care IG refresh.

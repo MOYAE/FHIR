@@ -1,9 +1,13 @@
 // Source of truth: packages/api/services/fhirObservations/visualAcuityHelpers/formatObservation.ts
-// Status: documents CURRENT shape (v0.1.0). Two important Moyae-specific characteristics:
+// Status: documents CURRENT shape (v0.1.1). Moyae-specific characteristics:
 //   1. `focus` references the companion VisionPrescription (set when typeOfExam = corrected | refraction).
-//   2. Method flags (manifest, cycloplegic, autorefraction, BCVA, overrefraction, with-correction) are
-//      carried as Observation.component entries with valueBoolean. The "with correction" flag uses a
-//      Moyae-defined URI (https://moyae.com/is-cc) rather than a SNOMED code.
+//      Transitional: the VisionPrescription carries the durable reverse link (see
+//      VisionPrescriptionSourceObservation).
+//   2. Method flags (manifest, cycloplegic, autorefraction, retinoscopy, BCVA, overrefraction,
+//      with-correction) are Observation.component entries with valueBoolean. The "with correction"
+//      flag uses a Moyae-defined URI (https://moyae.com/is-cc) rather than a SNOMED code.
+//   3. Application-name / application-version provenance extensions are stamped on every write.
+//   4. `derivedFrom` names the original Observation when an exam is imported from history.
 
 Profile:        MoyaeVisualAcuity
 Parent:         Observation
@@ -45,6 +49,11 @@ This is the canonical "VA Observation" path. The separate [MoyaeRefraction](Stru
 // see Caveats in narrative.
 * focus 0..*
 * focus only Reference(VisionPrescription)
+
+// Set when the exam was imported from a prior visit's history (MOYAE-3433): the copy
+// points at the Observation it was copied from.
+* derivedFrom 0..1
+* derivedFrom only Reference(Observation)
 
 * component 0..*
 * component ^short = "Mixed: method-flag boolean components, per-eye distance/intermediate/near valueString measurements (incl. pinhole and binocular variants), and per-eye vertex distance."
